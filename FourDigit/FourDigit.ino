@@ -123,8 +123,25 @@ void displayNumber(int toDisplay) {
 #define DIGIT_OFF  HIGH
 
   long beginTime = millis();
+  
+  int digits[5];
+  
+  // identify digits
+  for (int digit = 4 ; digit > 0 ; digit--) {
+    digits[digit] = toDisplay % 10;
+    toDisplay /= 10;
+  }
+  
+  // don't display initial 0 values by checking digits, starting with the most significant one
+  for (int digit = 1 ; digit <= 4 ; digit++) {
+    if (digits[digit] == 0) {
+      digits[digit] = 10; // an initial 0 should not be displayed, so replace 0 with "don't display" value
+    } else {
+      break; // we have a non-zero value, so this digit and any further digits should be displayed, so we stop checking
+    }
+  }
 
-  for(int digit = 4 ; digit > 0 ; digit--) {
+  for (int digit = 4 ; digit > 0 ; digit--) {
 
     //Turn on a digit for a short amount of time
     switch(digit) {
@@ -143,8 +160,7 @@ void displayNumber(int toDisplay) {
     }
 
     //Turn on the right segments for this digit
-    lightNumber(toDisplay % 10);
-    toDisplay /= 10;
+    lightNumber(digits[digit]);
 
     delayMicroseconds(DISPLAY_BRIGHTNESS); 
     //Display digit for fraction of a second (1us to 5000us, 500 is pretty good)
