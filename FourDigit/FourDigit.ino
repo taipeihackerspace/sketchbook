@@ -80,7 +80,7 @@ void loop() {
   
   //long startTime = millis();
 
-  displayNumber(millis()/1000);
+  displayNumber(millis()/100);
   /*
   digitalWrite(digit1, HIGH);
   digitalWrite(digit2, HIGH);
@@ -122,18 +122,24 @@ void displayNumber(int toDisplay) {
 #define DIGIT_ON  LOW
 #define DIGIT_OFF  HIGH
 
+#define NUM_LED_DIGITS 4 // this is the physical number of 7-segment LEDs
+
+#define NUM_DIGITS 2 // this is the number of digits we want to display before resetting
+                     // should be a number between 1 and NUM_LED_DIGITS
+
   long beginTime = millis();
   
   int digits[5];
+  int toDisplayOriginal = toDisplay;
   
   // identify digits
-  for (int digit = 4 ; digit > 0 ; digit--) {
+  for (int digit = NUM_DIGITS ; digit > 0 ; digit--) {
     digits[digit] = toDisplay % 10;
     toDisplay /= 10;
   }
   
   // don't display initial 0 values by checking digits, starting with the most significant one
-  for (int digit = 1 ; digit <= 4 ; digit++) {
+  for (int digit = 1 ; digit <= NUM_DIGITS ; digit++) {
     if (digits[digit] == 0) {
       digits[digit] = 10; // an initial 0 should not be displayed, so replace 0 with "don't display" value
     } else {
@@ -141,10 +147,10 @@ void displayNumber(int toDisplay) {
     }
   }
 
-  for (int digit = 4 ; digit > 0 ; digit--) {
+  for (int digit = NUM_DIGITS ; digit > 0 ; digit--) {
 
     //Turn on a digit for a short amount of time
-    switch(digit) {
+    switch(digit + (NUM_LED_DIGITS - NUM_DIGITS)) {
     case 1:
       digitalWrite(digit1, DIGIT_ON);
       break;
@@ -174,17 +180,30 @@ void displayNumber(int toDisplay) {
     digitalWrite(digit3, DIGIT_OFF);
     digitalWrite(digit4, DIGIT_OFF);
   }
+  
+  // add a little animation if one of the LEDs is not used
+  
+#define ANIMATION_SLOWNESS 2
 
+  if (NUM_DIGITS < NUM_LED_DIGITS) {
+    // use first, unused LED for something else
+    digitalWrite(digit1, DIGIT_ON);
+    lightSegment(toDisplayOriginal/ANIMATION_SLOWNESS % 14);
+    delayMicroseconds(DISPLAY_BRIGHTNESS);
+    digitalWrite(digit1, DIGIT_OFF);
+  }
+
+  
   while( (millis() - beginTime) < 10) ; 
   //Wait for 20ms to pass before we paint the display again
 }
 
+#define SEGMENT_ON  HIGH//LOW
+#define SEGMENT_OFF LOW//HIGH
+
 //Given a number, turns on those segments
 //If number == 10, then turn off number
 void lightNumber(int numberToDisplay) {
-
-#define SEGMENT_ON  HIGH//LOW
-#define SEGMENT_OFF LOW//HIGH
 
   switch (numberToDisplay){
 
@@ -297,5 +316,70 @@ void lightNumber(int numberToDisplay) {
     digitalWrite(segF, SEGMENT_OFF);
     digitalWrite(segG, SEGMENT_OFF);
     break;
+  }
+}
+
+//Given a number, turns on those segments
+//If number == 10, then turn off number
+void lightSegment(int segmentToDisplay) {
+
+  switch (segmentToDisplay){
+
+  case 0:
+    digitalWrite(segA, SEGMENT_ON);
+    break;
+
+  case 1:
+    digitalWrite(segB, SEGMENT_ON);
+    break;
+
+  case 2:
+    digitalWrite(segG, SEGMENT_ON);
+    break;
+
+  case 3:
+    digitalWrite(segE, SEGMENT_ON);
+    break;
+
+  case 4:
+    digitalWrite(segD, SEGMENT_ON);
+    break;
+
+  case 5:
+    digitalWrite(segC, SEGMENT_ON);
+    break;
+
+  case 6:
+    digitalWrite(segG, SEGMENT_ON);
+    break;
+
+  case 7:
+    digitalWrite(segF, SEGMENT_ON);
+    break;
+
+  case 8:
+    digitalWrite(segA, SEGMENT_ON);
+    break;
+
+  case 9:
+    digitalWrite(segB, SEGMENT_ON);
+    break;
+
+  case 10:
+    digitalWrite(segC, SEGMENT_ON);
+    break;
+
+  case 11:
+    digitalWrite(segD, SEGMENT_ON);
+    break;
+
+  case 12:
+    digitalWrite(segE, SEGMENT_ON);
+    break;
+
+  case 13:
+    digitalWrite(segF, SEGMENT_ON);
+    break;
+
   }
 }
