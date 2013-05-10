@@ -59,7 +59,7 @@ Dig4   6         8         6
  12 pins required for full control 
  
  */
-
+int p, q;
 int digit1 = 11; //PWM Display pin 1
 int digit2 = 10; //PWM Display pin 2
 int digit3 = 9; //PWM Display pin 6
@@ -75,7 +75,8 @@ int segE = A0; //Display pin 5
 int segF = 7; //Display pin 11
 int segG = 8; //Display pin 15
 
-void setup() {                
+void setup() { 
+  Serial.begin(9600);   
   pinMode(segA, OUTPUT);
   pinMode(segB, OUTPUT);
   pinMode(segC, OUTPUT);
@@ -92,11 +93,28 @@ void setup() {
   pinMode(13, OUTPUT);
 }
 
+int sum = 0;
+int current = 0;
+
 void loop() {
-  
+    if (Serial.available() > 0) {
+        int p = Serial.read();
+        Serial.println(p, HEX);
+        if (p == '.'){
+          current = sum;
+          sum = 0;
+          return ;
+       }
+       sum = sum * 10 + (p - 0x30);
+    }
+    
+   displayNumber(current);
   //long startTime = millis();
 
-  displayNumber(millis()/1000);
+   //if (Serial.available() > 0) {
+    //int x= Serial.read();
+    //Serial.println(x, DEC);
+   //}
   /*
   digitalWrite(digit1, HIGH);
   digitalWrite(digit2, HIGH);
